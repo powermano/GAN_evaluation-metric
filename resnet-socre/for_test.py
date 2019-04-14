@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-
+import os
 
 def next_batch():
     datasets = np.asarray(range(0, 20))
