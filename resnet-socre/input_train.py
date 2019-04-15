@@ -35,7 +35,7 @@ import math
 # %%
 
 # you need to change this to your data directory
-train_dir = r'E:\detection paper\sonar_data'
+#train_dir = r'E:\detection paper\sonar_data'
 
 
 def get_files(file_dir, train_file, val_file):
@@ -55,21 +55,21 @@ def get_files(file_dir, train_file, val_file):
     image_val_label = []
     for id in train_list:
         images_list.append(os.path.join(file_dir, id + '.jpg'))
-        if 10000 <= int(id) <= 10425:
+        if 10000 <= int(id) <= 10030:    # 10425
             label_list.append(0)
-        elif 10426 <= int(id) <= 14475:
+        elif 10030 <= int(id) <= 10085:  #14475
             label_list.append(1)
         else:
             label_list.append(2)
     label_list = [int(float(i)) for i in label_list]
     for id1 in val_list:
         image_val_list.append(os.path.join(file_dir, id1 + '.jpg'))
-        if 10000 <= int(id1) <= 10425:
-            label_list.append(0)
-        elif 10426 <= int(id1) <= 14475:
-            label_list.append(1)
+        if 10000 <= int(id1) <= 10030:
+            image_val_label.append(0)
+        elif 10030 <= int(id1) <= 10085:
+            image_val_label.append(1)
         else:
-            label_list.append(2)
+            image_val_label.append(2)
     image_val_label = [int(float(i)) for i in image_val_label]
     print('There are %d training images' % (len(images_list)))
     print('There are %d validation images' % (len(image_val_list)))
@@ -111,7 +111,7 @@ def get_files(file_dir, train_file, val_file):
     # val_labels = all_label_list[n_train:-1]
     # val_labels = [int(float(i)) for i in val_labels]
 
-    return tra_images, tra_labels, val_images, val_labels
+
 
 
 # %%
@@ -153,9 +153,9 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
                                               batch_size=batch_size,
                                               num_threads=16,
                                               capacity=capacity)
-
-    label_batch = tf.reshape(label_batch, [batch_size])
-    image_batch = tf.cast(image_batch, tf.float32)
+    print(image_batch, label_batch)
+    # label_batch = tf.reshape(label_batch, [batch_size])
+    # image_batch = tf.cast(image_batch, tf.float32)
 
     return image_batch, label_batch
 
@@ -181,18 +181,20 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
 # # train_dir = '/home/kevin/tensorflow/cats_vs_dogs/data/train/'
 # # ratio = 0.2
 # # tra_images, tra_labels, val_images, val_labels = get_files(train_dir, ratio)
-# import os
-# id_list = os.listdir(train_dir)
-# tra_images = []
-# tra_labels = []
-# for id in id_list:
-#     tra_images.append(os.path.join(train_dir, id))
-#     tra_labels.append(1)
-# tra_labels = [int(float(i)) for i in tra_labels]
-# tra_image_batch, tra_label_batch = get_batch(tra_images, tra_labels, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
-#
-#
-#
+# # import os
+# # id_list = os.listdir(train_dir)
+# # tra_images = []
+# # tra_labels = []
+# # for id in id_list:
+# #     tra_images.append(os.path.join(train_dir, id))
+# #     tra_labels.append(1)
+# # tra_labels = [int(float(i)) for i in tra_labels]
+# # tra_image_batch, tra_label_batch = get_batch(tra_images, tra_labels, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
+# file_dir = r'E:\detection paper\sonar_data'
+# train_dir = r'E:\train.txt'
+# val_dir = r'E:\test.txt'
+# tra_image, tra_label, val, val_label = get_files(file_dir, train_dir, val_dir)
+# tra_image_batch, tra_label_batch = get_batch(tra_image, tra_label, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
 # with tf.Session() as sess:
 #    i = 0
 #    coord = tf.train.Coordinator()

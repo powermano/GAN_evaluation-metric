@@ -53,7 +53,7 @@ num_classes = 3
 depth_multiplier = 1
 min_base_depth = 8
 batch_size = 1  # test_batch
-BATCH = 32  # train_batch size
+BATCH = 32 # train_batch size
 img_height = 224
 img_width = 224
 img_layer = 3
@@ -110,7 +110,7 @@ def model():
 
         if num_classes:
             net_final = slim.conv2d(net_global, num_classes, [1, 1], activation_fn=None,
-                                    normalizer_fn=None, scope='logits_fixed')   # default is logits, change it for train sonar images
+                                    normalizer_fn=None, scope='logits')   # default is logits, change it for train sonar images
             if spatial_squeeze:
                 net_squzee = tf.squeeze(net_final, [1, 2], name='SpatialSqueeze')
             cls_pred = tf.arg_max(net_squzee, 1)
@@ -175,8 +175,8 @@ def test_images(image_dir):
         coord.join(threads)
 
         #chkpt_fname = tf.train.latest_checkpoint(check_dir)
-        chkpt_fname = r'E:\resnet_v1_50.ckpt'
-        #chkpt_fname = '/home/ct/resnet_v1_50.ckpt'
+        #chkpt_fname = r'E:\resnet_v1_50.ckpt'
+        chkpt_fname = '/home/ct/resnet_v1_50.ckpt'
         print(chkpt_fname)
         print('loading model ...............')
         saver.restore(sess, chkpt_fname)
@@ -252,6 +252,7 @@ def evaluation(logits, labels):
       tf.summary.scalar(scope.name+'/accuracy', accuracy)
   return accuracy
 
+
 def train(image_dir):
     cls, softmax_result = model()
     # id_list = os.listdir(image_dir)
@@ -261,33 +262,35 @@ def train(image_dir):
     #     image_list.append(os.path.join(image_dir, id))
     #     label_list.append(1)
     # label_list = [int(float(x)) for x in label_list]
+    # image_list, label_list, val_image_list, val_image_label = get_files(image_dir,
+    #                 './trainval_list/trainval.txt', './trainval_list/test.txt')
     image_list, label_list, val_image_list, val_image_label = get_files(image_dir,
-                    './trainval_list/trainval.txt', './trainval_list/test.txt')
-    train_batch, label_batch = get_batch(image_list, label_list, img_width, img_height, BATCH, 5000)
-    val_batch, val_label_batch = get_batch(val_image_list, val_image_label, img_width, img_height, BATCH, 5000)
+                    r'E:\train.txt', r'E:\test.txt')
+    train_batch, label_batch = get_batch(image_list, label_list, img_width, img_height, BATCH, 10)
+    val_batch, val_label_batch = get_batch(val_image_list, val_image_label, img_width, img_height, BATCH, 10)
     loss = losses(softmax_result, label_batch)
     train_op = trainning(loss, learning_rate)
     acc = evaluation(softmax_result, label_batch)
     with tf.Session() as sess:
         restore_list = [x for x in tf.trainable_variables() if 'logit' not in x.name]
-        saver = tf.train.Saver(restore_list)
         init = [tf.global_variables_initializer(), tf.local_variables_initializer()]
         sess.run(init)
-        coord = tf.train.Coordinator()
-        threads = tf.train.start_queue_runners(coord=coord)
+        saver = tf.train.Saver(restore_list)
         #chkpt_fname = r'E:\resnet_v1_50.ckpt'
         chkpt_fname = '/home/ct/resnet_v1_50.ckpt'
         print(chkpt_fname)
         print('loading model ...............')
         saver.restore(sess, chkpt_fname)
         print('Suessfully load the model................')
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         #logs_train_dir = r'E:\detection paper\train_result_dir'
         logs_train_dir = './logs/train'
         logs_val_dir = './logs/val'
         summary_op = tf.summary.merge_all()
         train_writer = tf.summary.FileWriter(logs_train_dir, sess.graph)
         val_writer = tf.summary.FileWriter(logs_val_dir, sess.graph)
-        MAX_STEP = 5000
+        MAX_STEP = 20000
         try:
             for step in np.arange(MAX_STEP):
                 if coord.should_stop():
@@ -311,7 +314,7 @@ def train(image_dir):
                     summary_str = sess.run(summary_op, feed_dict={image: val_images, y: val_labels})
                     val_writer.add_summary(summary_str, step)
 
-                if step % 5000 == 0 or (step + 1) == MAX_STEP:
+                if step % 20000 == 0 or (step + 1) == MAX_STEP:
                     checkpoint_path = os.path.join(logs_train_dir, 'sonar.ckpt')
                     saver.save(sess, checkpoint_path, global_step=step)
 
@@ -336,4 +339,5 @@ def train(image_dir):
 # train sonar classification using pre-trainded model on Imagenet with resnetv1_50
 if __name__== '__main__':
     image_dir = './images/JPEGImages'
+    #image_dir = r'E:\detection paper\sonar_data'
     train(image_dir)

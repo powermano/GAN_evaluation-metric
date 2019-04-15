@@ -9,9 +9,16 @@ def next_batch():
                                  capacity=18, allow_smaller_final_batch=False)
     return data_batchs
 
+def next_batch1():
+    datasets = np.asarray(range(10, 30))
+    input_queue = tf.train.slice_input_producer([datasets], shuffle=False)
+    data_batchs = tf.train.batch(input_queue, batch_size=6, num_threads=1,
+                                 capacity=20, allow_smaller_final_batch=False)
+    return data_batchs
 
 if __name__ == "__main__":
     data_batchs = next_batch()
+    data_batchs1 = next_batch()
     sess = tf.Session()
     sess.run(tf.local_variables_initializer())
     coord = tf.train.Coordinator()
@@ -19,7 +26,9 @@ if __name__ == "__main__":
     try:
         while not coord.should_stop():
             data = sess.run([data_batchs])
+            data1 = sess.run([data_batchs1])
             print(data)
+            print(data1)
     except tf.errors.OutOfRangeError:
         print("complete")
     finally:
