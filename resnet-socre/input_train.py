@@ -55,18 +55,18 @@ def get_files(file_dir, train_file, val_file):
     image_val_label = []
     for id in train_list:
         images_list.append(os.path.join(file_dir, id + '.jpg'))
-        if 10000 <= int(id) <= 10030:    # 10425
+        if 10000 <= int(id) <= 10425:    # 10425
             label_list.append(0)
-        elif 10030 <= int(id) <= 10085:  #14475
+        elif 10425 <= int(id) <= 14474:  #14475
             label_list.append(1)
         else:
             label_list.append(2)
     label_list = [int(float(i)) for i in label_list]
     for id1 in val_list:
         image_val_list.append(os.path.join(file_dir, id1 + '.jpg'))
-        if 10000 <= int(id1) <= 10030:
+        if 10000 <= int(id1) <= 10425:
             image_val_label.append(0)
-        elif 10030 <= int(id1) <= 10085:
+        elif 10425 <= int(id1) <= 14475:
             image_val_label.append(1)
         else:
             image_val_label.append(2)
